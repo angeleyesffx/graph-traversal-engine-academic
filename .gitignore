@@ -1,0 +1,15 @@
+# Build artifacts
+graph_search
+tests/test_queue
+tests/test_graph
+tests/test_bfs
+tests/test_dfs
+*.o
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
+*~

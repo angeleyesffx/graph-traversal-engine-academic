@@ -1,27 +1,41 @@
-# Final executable name
-TARGET = graph_search
+CC      = gcc
+CFLAGS  = -Wall -Wextra -std=c99 -Isrc -Ilib
+TARGET  = graph_search
+SRC     = src/queue.c src/graph.c
+MAIN    = src/main.c
 
-# Compiler and compilation flags
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
+TESTS   = tests/test_queue \
+          tests/test_graph  \
+          tests/test_bfs    \
+          tests/test_dfs
 
-# Automatically locate all .c source files in the directory
-SRCS = $(wildcard *.c)
-OBJS = $(SRCS:.c=.o)
+.PHONY: all test valgrind clean
 
-# Default rule (compiles the entire project)
 all: $(TARGET)
 
-# Link object files to create the final executable
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+$(TARGET): $(SRC) $(MAIN)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Compile source files into object files
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+tests/%: tests/%.c $(SRC)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Clean up generated binary and object files
+test: $(TESTS)
+	@echo ""
+	@failed=0; \
+	for t in $(TESTS); do \
+		echo "--- Running $$t ---"; \
+		./$$t || failed=$$((failed + 1)); \
+	done; \
+	echo ""; \
+	if [ $$failed -eq 0 ]; then \
+		echo "All test suites passed."; \
+	else \
+		echo "$$failed suite(s) FAILED."; \
+		exit 1; \
+	fi
+
+valgrind: $(TARGET)
+	valgrind --leak-check=full --track-origins=yes --error-exitcode=1 ./$(TARGET)
+
 clean:
-	rm -f *.o $(TARGET)
-
-.PHONY: all clean
+	rm -f $(TARGET) $(TESTS)

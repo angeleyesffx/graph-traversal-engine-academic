@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: ["master", "main"]
+  pull_request:
+    branches: ["master", "main"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: sudo apt-get install -y gcc valgrind
+
+      - name: Build
+        run: make
+
+      - name: Run tests
+        run: make test
+
+      - name: Memory check (Valgrind)
+        run: make valgrind

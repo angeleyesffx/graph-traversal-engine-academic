@@ -1,6 +1,9 @@
 /*
-Priscilla Rodrigues Martins        3136179-1
-*/
+ * Original academic submission (single-file, Portuguese).
+ * Refactored version lives in src/ with full test coverage.
+ *
+ * Author: Priscilla Rodrigues Martins
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,7 +55,7 @@ void initializeEmpty(Queue *Q){
     Q->front = Q->back= 0;
 }
 
-//Verifica se a FILA está vazia. (ponto onde a cauda e a cabeça se encontram)
+//Verifica se a FILA estï¿½ vazia. (ponto onde a cauda e a cabeï¿½a se encontram)
 int isEmpty(Queue Q){
     return Q.back == Q.front;
 }
@@ -66,7 +69,7 @@ void enqueue(Queue *Q, int elem){
      }
 }
 
-//retira elemento que está na cabeça da FILA
+//retira elemento que estï¿½ na cabeï¿½a da FILA
 int dequeue(Queue *Q){
 	int back;
 	if(Q->front == Q->back) {
@@ -80,7 +83,7 @@ int dequeue(Queue *Q){
     return back;              
  }
 
-//fim da implementação da FILA
+//fim da implementaï¿½ï¿½o da FILA
 
 void criarGrafo(Vertice **G, int ordem){
     int i;
@@ -110,6 +113,7 @@ int adicionarAresta(Vertice G[], int ordem, int v1, int v2){
 	A2->nome= v1;
 	A2->prox= G[v2].prim;
 	G[v2].prim= A2;
+	return 1;
 }
 //Calculando o tamanho do Grafo
 int calculaTamanho(Vertice G[], int ordem){
@@ -125,8 +129,8 @@ int calculaTamanho(Vertice G[], int ordem){
 	return totalArestas/2 + ordem;
 }
 
-//verificaConexo percorre todos os vertices verificando se todos foram visitados e estão marcados como "PRETO"
-//Ou se algum vertice permaneceu "BRANCO" após a execução do método percorreGrafo
+//verificaConexo percorre todos os vertices verificando se todos foram visitados e estï¿½o marcados como "PRETO"
+//Ou se algum vertice permaneceu "BRANCO" apï¿½s a execuï¿½ï¿½o do mï¿½todo percorreGrafo
 int verificaConexo(Vertice G[], int ordem){
 	int i;  
 	//Percorrendo todos os vertices 
@@ -134,65 +138,59 @@ int verificaConexo(Vertice G[], int ordem){
 	for (i=0; i<ordem; i++){
 		Aresta *aux= G[i].prim;
 		for( ; aux != NULL; aux= aux->prox){	  	
-		//Se o vertice não foi visitado e permaneceu "BRANCO" o Grafo não será conexo
+		//Se o vertice nï¿½o foi visitado e permaneceu "BRANCO" o Grafo nï¿½o serï¿½ conexo
 		if(G[i].cor == 0){
 			   printf("G[%d] n%co foi visitado e permaneceu BRANCO.\n", aux->nome, 198);	    	
 	    	   printf("Grafo n%co conexo\n",198);
 	    	   return 0;
 			}else{		
-		          printf("G[%d] foi visitado e marcado como PRETO.\n", aux->nome, 198);
+		          printf("G[%d] foi visitado e marcado como PRETO.\n", aux->nome);
 			}	
 		}
 	}
-   //Se todos os vertices foram visitados e marcados como "PRETO" o Grafo será conexo
+   //Se todos os vertices foram visitados e marcados como "PRETO" o Grafo serï¿½ conexo
 	printf("\nGrafo Conexo\n");	
     return 1;
 }
 
-//buscaLargura é a implementaçãodo Algoritmo BFS(Busca em Largura) do livro Cormen página 595
+//buscaLargura ï¿½ a implementaï¿½ï¿½odo Algoritmo BFS(Busca em Largura) do livro Cormen pï¿½gina 595
 void buscaLargura(Vertice G[], int vInicial, int ordem){			
-	int i,j,u;	
-	//Para armazenar o vertice foi utilizada uma fila "q"					
+	int i, u;
 	Queue *q = (Queue*) malloc(sizeof(Queue));
-	q->front = 0;	
-    q->back = 0;
-    //a variável "u" armazenará o vertice inicial para verificar a conectividade com os demais vertices do Grafo
-	u = vInicial; 
-	Aresta *aux= G[u].prim;
+	initializeEmpty(q);
+
 	printf("\n*** Busca em Largura ***");
     printf("\n___________________________________________________________________________\n");
-    if (aux != NULL)
-        printf("\nV%d:", aux->nome);
-	//A estrutura de repetição a seguir marca os vertices não visitado como "BRANCO"    	
-	for (i=0; i<ordem; i++){
-		Aresta *aux2= G[i].prim;
-		for( ; aux2 != NULL; aux2= aux2->prox){
-		    G[i].cor = BRANCO;
-		    G[i].dist=0;
-        	G[i].predecessor=-1;
-	     	}
-	}  
-	//Nesse momento o primeiro vertice visitado é marcado com "CINZA"
-    G[u].cor = CINZA;
-    //o vertice será armazenado na fila
-    enqueue(q, G[u].nome);
-    while(isEmpty(*q)!=1){
-	//Enquanto populada, o algoritmo continuará marcando como visitados os vertices que ainda tiverem arestas a percorrer
+
+	/* Cormen p.595: inicializa todos os vertices antes de comecar */
+	for (i = 0; i < ordem; i++){
+		G[i].cor = BRANCO;
+		G[i].dist = 999;
+		G[i].predecessor = -1;
+	}
+
+	G[vInicial].cor = CINZA;
+	G[vInicial].dist = 0;
+    enqueue(q, vInicial);
+
+    while(isEmpty(*q) != 1){
         u = dequeue(q);
-	   	for(j=0; aux != NULL; aux= aux->prox, j++){
+        Aresta *aux = G[u].prim;
+        printf("\nV%d:", u);
+        for(; aux != NULL; aux = aux->prox){
     	    if (G[aux->nome].cor == BRANCO) {
-    	    	printf("  ->  G[j] %d", G[aux->nome].nome);
-    	        G[u].cor = CINZA;
-	            G[u].dist=G[u].dist+1;
-	            G[u].predecessor=u;
+    	    	printf("  ->  %d", aux->nome);
+    	        G[aux->nome].cor = CINZA;
+	            G[aux->nome].dist = G[u].dist + 1;
+	            G[aux->nome].predecessor = u;
 		    	enqueue(q, aux->nome);
 	    	}
 	    }
-	    aux= G[u].prim;
-		//Quando não houverem mais aretas a serem visitadas em um determinado vertice, ele será marcado como "PRETO"	        
         G[u].cor = PRETO;
-    } 
-    imprimeGrafoDistancia(G, ordem);	        
+    }
+
+    free(q);
+    imprimeGrafoDistancia(G, ordem);
 }
 
 //verificaGrau calcula o grau de cada vertice e o classifica como par ou impar 
@@ -207,7 +205,7 @@ int verificaGrau(Vertice G[], int ordem){
 			verticeGrau[i]+=1;			
 		}
 	}	
-	//Verifica de o grau de cada um dos vertices é par ou impar 
+	//Verifica de o grau de cada um dos vertices ï¿½ par ou impar 
 	printf("\nVerificando se o grafo apresenta grau Impar ou grau diferente de zero...\n"); 
 	for(i=0; i<ordem; i++){
 		if(verticeGrau[i]%2 != 0){
@@ -220,17 +218,17 @@ int verificaGrau(Vertice G[], int ordem){
     }
 	return 1;	   
 }
-//Verifica o retorno dos metodos verificaConexo e verificaGraua para determinar se o grafo é Euleriano
+//Verifica o retorno dos metodos verificaConexo e verificaGraua para determinar se o grafo ï¿½ Euleriano
 int verificaEuleriano(Vertice G[], int ordem){
-	if((verificaConexo(G, ordem) == 1)&&(verificaGrau(G, ordem) == 1))
-		
+	if((verificaConexo(G, ordem) == 1)&&(verificaGrau(G, ordem) == 1)){
 		printf("\n***** %c um Grafo Euleriano *****\n",144);
-	else
+		return 1;
+	} else {
 		printf("\n***** N%co %c um Grafo Euleriano *****\n",198,130);
-
-
+		return 0;
+	}
 }
-//buscaLargura é a implementaçãodo Algoritmo DFS(Busca em Profundidade) do livro Cormen página 604
+//buscaLargura ï¿½ a implementaï¿½ï¿½odo Algoritmo DFS(Busca em Profundidade) do livro Cormen pï¿½gina 604
 void buscaProfundidade(Vertice G[], int ordem){
     int i;
     printf("\n*** Busca em Profundidade ***");
@@ -252,15 +250,15 @@ void buscaProfundidade(Vertice G[], int ordem){
 void bProfVisitado(Vertice G[], int v){
     int j;
     Aresta *aux = G[v].prim;
+    G[v].cor = CINZA;
     if (aux != NULL)
-        printf("\nV%d:", aux->nome);
+        printf("\nV%d:", v);
     for(j=0; aux != NULL; aux= aux->prox, j++){
-        G[v].cor = CINZA;
         if (G[aux->nome].cor == BRANCO) {
-            printf("  ->  G[j] %d", G[aux->nome].nome);
+            printf("  ->  %d", aux->nome);
             G[aux->nome].dist=G[aux->nome].dist+1;
             G[aux->nome].predecessor = v;
-            bProfVisitado(G, j);
+            bProfVisitado(G, aux->nome);
         }
     }
     G[v].cor = PRETO;
